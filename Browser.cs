@@ -26,6 +26,7 @@ namespace Krom
         private void InitializeForm()
         {
             BrowserTabs.Height = ClientRectangle.Height - 25;
+            this.WindowState = FormWindowState.Maximized;
         }
 
         private void InitilizeBrowser()
@@ -34,7 +35,8 @@ namespace Krom
             browser = new ChromiumWebBrowser("https://www.google.com");
             browser.Dock = DockStyle.Fill;
             BrowserTabs.TabPages[0].Controls.Add(browser);
-            browser.AddressChanged += Browser_AddressChanged;
+            BrowserTabs.TabPages[0].Text = "New Tab";
+            BrowserTabs.TabPages[1].Dispose();
         }
 
         private void toolStripButtonHome_Click(object sender, EventArgs e)
@@ -44,13 +46,18 @@ namespace Krom
 
         private void toolStripButtonEnter_Click(object sender, EventArgs e)
         {
+            Navigate(toolStripAdressBar.Text);
+        }
+        private void Navigate(string address)
+        {
             try
             {
-                browser.Load(toolStripAdressBar.Text);
+                var slectedBrowser = (ChromiumWebBrowser)BrowserTabs.SelectedTab.Controls[0];
+                slectedBrowser.Load(address);
             }
             catch
             {
-                
+
             }
         }
 
@@ -93,9 +100,28 @@ namespace Krom
 
         private void toolStripButtonAddTab_Click(object sender, EventArgs e)
         {
+            AddBrowserTab();
+        }
+        private void AddBrowserTab()
+        {
+            //adding a tab
             var newTabPage = new TabPage();
             newTabPage.Text = "New Tab";
             BrowserTabs.TabPages.Add(newTabPage);
+            //adding browser
+            browser = new ChromiumWebBrowser("https://www.google.com");
+            browser.Dock = DockStyle.Fill;
+            browser.TitleChanged += Browser_TitleChanged;
+            browser.AddressChanged += Browser_AddressChanged;
+            newTabPage.Controls.Add(browser);
+        }
+        private void Browser_TitleChanged(object sender, TitleChangedEventArgs e)
+        {
+            var selectedBrowser = (ChromiumWebBrowser)sender;
+            this.Invoke(new MethodInvoker(() =>
+            {
+                selectedBrowser.Parent.Text = e.Title;
+            }));
         }
     }
 }
