@@ -32,11 +32,8 @@ namespace Krom
         private void InitilizeBrowser()
         {
             Cef.Initialize(new CefSettings());
-            browser = new ChromiumWebBrowser("https://www.google.com");
-            browser.Dock = DockStyle.Fill;
-            BrowserTabs.TabPages[0].Controls.Add(browser);
-            BrowserTabs.TabPages[0].Text = "New Tab";
-            BrowserTabs.TabPages[1].Dispose();
+            BrowserTabs.TabPages[0].Dispose();
+            AddBrowserTab();
         }
 
         private void toolStripButtonHome_Click(object sender, EventArgs e)
@@ -107,13 +104,15 @@ namespace Krom
             //adding a tab
             var newTabPage = new TabPage();
             newTabPage.Text = "New Tab";
-            BrowserTabs.TabPages.Add(newTabPage);
+            // BrowserTabs.TabPages.Add(newTabPage);
+            BrowserTabs.TabPages.Insert(BrowserTabs.TabPages.Count - 1, newTabPage);
             //adding browser
             browser = new ChromiumWebBrowser("https://www.google.com");
             browser.Dock = DockStyle.Fill;
             browser.TitleChanged += Browser_TitleChanged;
             browser.AddressChanged += Browser_AddressChanged;
             newTabPage.Controls.Add(browser);
+            BrowserTabs.SelectedTab = newTabPage;
         }
         private void Browser_TitleChanged(object sender, TitleChangedEventArgs e)
         {
@@ -122,6 +121,16 @@ namespace Krom
             {
                 selectedBrowser.Parent.Text = e.Title;
             }));
+        }
+        private void BrowserTabs_Click(object sender, EventArgs e)
+        {
+            //MessageBox.Show("Tab Index Changed");
+            if (BrowserTabs.SelectedTab == BrowserTabs.TabPages[BrowserTabs.TabPages.Count - 1])
+            {
+                AddBrowserTab();
+                //select the latest browser tab
+                BrowserTabs.SelectedTab = BrowserTabs.TabPages[BrowserTabs.TabPages.Count - 2];
+            }
         }
     }
 }
